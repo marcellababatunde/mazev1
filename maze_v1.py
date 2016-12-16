@@ -249,6 +249,7 @@ win = False
 doors_open = False
 score = 0
 done = False
+lose = False
 
 
     
@@ -271,6 +272,7 @@ while not done:
 
             elif stage == END:
                 if event.key == pygame.K_SPACE:
+                    lose = False
                     setup()
 
     if stage == PLAYING:
@@ -338,6 +340,10 @@ while not done:
                     enemy[0] = w[0] - enemy[2]
                 elif enemy_vx < 0:
                     enemy[0] = w[0] + w[2]
+
+            if intersects.rect_rect(player, enemy):
+                stage = END
+                lose = True
 
 
         '''for w in walls2:
@@ -424,6 +430,7 @@ while not done:
 
         if len(coins) == 0:
             win = True
+            stage = END
 
 
     ''' open door on switch contact 
@@ -442,18 +449,28 @@ while not done:
 
     enemycolor = red
     PlayerColor = GREEN
-    pygame.draw.rect(screen, PlayerColor, player)
-    pygame.draw.rect(screen, enemycolor, enemy)
+    if stage == START:
+        pygame.draw.rect(screen, BLACK, player)
+        pygame.draw.rect(screen, BLACK, enemy)
+    if stage == PLAYING:
+        pygame.draw.rect(screen, PlayerColor, player)
+        pygame.draw.rect(screen, enemycolor, enemy)
     
     for w in walls:
         RED = (random.randint(1,255),random.randint(1,255),random.randint(1,255))
-        pygame.draw.rect(screen, RED, w)
+        if stage == START:
+            pygame.draw.rect(screen, BLACK, w)
+        if stage == PLAYING:
+            pygame.draw.rect(screen, RED, w)
 
     '''for w in walls2:
         pygame.draw.rect(screen, BLACK, w)'''
         
     for c in coins:
-        pygame.draw.rect(screen, YELLOW, c)
+        if stage == START:
+            pygame.draw.rect(screen, BLACK, c)
+        if stage == PLAYING:
+            pygame.draw.rect(screen, YELLOW, c)
 
     #pygame.draw.rect(screen, YELLOW, switch)
 
@@ -471,8 +488,12 @@ while not done:
     if stage == START:
         font = pygame.font.Font(None, 64)
         text1 = font.render("Press SPACE to play.", True, WHITE)
-        screen.blit(text1, [300, 350])
-        player =  [200, 150, 25, 25]
+        text2 = font.render("Player Controls: ARROW KEYS", True, WHITE)
+        text3 = font.render("Enemy Controls: W A S D", True, WHITE)
+        screen.blit(text1, [300, 250])
+        screen.blit(text2, [200, 350])
+        screen.blit(text3, [250, 450])
+        player =  [0, 0, 25, 25]
 
     if stage == PLAYING:
         font = pygame.font.Font(None, 64)
@@ -483,7 +504,13 @@ while not done:
         font = pygame.font.Font(None, 64)
         text = font.render("You Win!", 1, GREEN)
         screen.blit(text, [((WIDTH/2)-96), ((HEIGHT/2)-32)])
-
+    if lose:
+        font = pygame.font.Font(None, 64)
+        text1 = font.render("Game Over!", 1, GREEN)
+        text2 = font.render("Press SPACE to play again", 1, GREEN)
+        screen.blit(text1, [((WIDTH/2)-96), ((HEIGHT/2)-32)])
+        screen.blit(text2, [250, 400])
+        score = 0
     if time_remaining == 0:
         font = pygame.font.Font(None, 64)
         text1 = font.render("Game Over!", 1, GREEN)
